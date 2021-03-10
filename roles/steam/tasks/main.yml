@@ -1,0 +1,3 @@
+---
+- import_tasks: "{{ role_path }}/tasks/root_tasks.yml"
+  become: true

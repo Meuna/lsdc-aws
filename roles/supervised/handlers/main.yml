@@ -1,0 +1,4 @@
+---
+- name: supervisord reload
+  become: true
+  shell: supervisorctl reload

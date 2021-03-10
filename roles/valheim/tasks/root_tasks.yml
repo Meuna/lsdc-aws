@@ -1,0 +1,14 @@
+---
+- name: Setup supervisor conf
+  notify: supervisord reload
+  ansible.builtin.copy:
+    dest: /etc/supervisor/conf.d/valheim.conf
+    content: |
+      [program:{{ service }}]
+      directory=/home/steam/valheim
+      command=/home/steam/valheim/valheim_server.x86_64 -name "{{ server_name }}" -port {{ valheim_port }} -world "{{world_name}}" -password "{{server_password}}"
+      user=steam
+      environment=HOME="/home/steam",USER="steam",LD_LIBRARY_PATH="./linux64",templdpath="./linux64"
+      autorestart=true
+      redirect_stderr=true
+      stopsignal=INT

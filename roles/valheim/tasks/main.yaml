@@ -1,0 +1,11 @@
+---
+- name: Check if world exists
+  local_action: ansible.builtin.stat path={{ playbook_dir }}/{{world_name}}.db
+  register: worldfile
+
+- import_tasks: "{{ role_path }}/tasks/steam_tasks.yml"
+  become: true
+  become_user: steam
+
+- import_tasks: "{{ role_path }}/tasks/root_tasks.yml"
+  become: true

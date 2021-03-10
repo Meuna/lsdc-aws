@@ -27,8 +27,8 @@ data "http" "ifconfig" {
 }
 
 locals {
-  service    = "valheim"
-  my_ip      = jsondecode(data.http.ifconfig.body).ip
+  service = "valheim"
+  my_ip   = jsondecode(data.http.ifconfig.body).ip
 }
 
 provider "aws" {
@@ -100,11 +100,14 @@ data "aws_iam_policy_document" "ec2-assume" {
 
 data "aws_iam_policy_document" "ec2-policy" {
   statement {
-    actions   = ["sqs:ReceiveMessage"]
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:PurgeQueue"
+    ]
     resources = [aws_sqs_queue.queue.arn]
   }
   statement {
-    actions = ["ec2:DescribeInstances"]
+    actions   = ["ec2:DescribeInstances"]
     resources = ["*"]
   }
 }
@@ -135,7 +138,7 @@ resource "aws_instance" "server" {
   iam_instance_profile = aws_iam_instance_profile.ec2.name
 
   tags = {
-    Name = local.service
+    Name    = local.service
     SQS_URL = aws_sqs_queue.queue.id
   }
 }
@@ -161,7 +164,7 @@ data "aws_iam_policy_document" "lambda-policy" {
     resources = [aws_instance.server.arn]
   }
   statement {
-    actions = ["ec2:DescribeInstances"]
+    actions   = ["ec2:DescribeInstances"]
     resources = ["*"]
   }
 }

@@ -1,0 +1,38 @@
+---
+- name: Add steam user
+  ansible.builtin.user:
+    name: steam
+    state: present
+
+- name: Add multiverse
+  ansible.builtin.command: add-apt-repository multiverse
+  args:
+    creates: /var/lib/dpkg/arch
+  when: ansible_architecture != 'i386'
+  register: archrc
+
+- name: Add i386 Architecture
+  ansible.builtin.command: dpkg --add-architecture i386
+  args:
+    creates: /var/lib/dpkg/arch
+  when: ansible_architecture != 'i386'
+  register: archrc
+
+- name: Accept EULA agreement (1)
+  ansible.builtin.debconf:
+    name: steam
+    question: steam/question
+    value: 'I AGREE'
+    vtype: select
+
+- name: Accept EULA agreement (2)
+  ansible.builtin.debconf:
+    name: steam
+    question: steam/license
+    value: ''
+    vtype: note
+
+- name: Update repositories cache and install package
+  ansible.builtin.apt:
+    name: [lib32gcc1, steamcmd]
+    update_cache: yes

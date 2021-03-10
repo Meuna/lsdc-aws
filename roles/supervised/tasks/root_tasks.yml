@@ -1,0 +1,27 @@
+---
+- name: Update repositories cache and install packages
+  ansible.builtin.apt:
+    name: [supervisor, python-boto3]
+    update_cache: yes
+
+- name: Start service
+  ansible.builtin.service:
+    name: supervisor
+    state: started
+
+- name: Deploy await_stop.py
+  ansible.builtin.copy:
+    src: await_stop.py
+    dest: /usr/local/bin/await_stop.py
+    mode: 0500
+
+- name: Setup conf
+  notify: supervisord reload
+  ansible.builtin.copy:
+    dest: /etc/supervisor/conf.d/await_stop.conf
+    content: |
+      [program:await_stop]
+      command=python /usr/local/bin/await_stop.py
+      environment=SERVICE="{{ service }}"
+      user=root
+      autorestart=true

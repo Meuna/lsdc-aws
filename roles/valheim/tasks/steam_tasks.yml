@@ -1,0 +1,17 @@
+---
+- name: Setup folder
+  ansible.builtin.file:
+    path: /home/steam/valheim
+    state: directory
+    mode: '0755'
+
+- name: Install game
+  ansible.builtin.command: /usr/games/steamcmd +login anonymous +force_install_dir /home/steam/valheim +app_update {{ app_id }} validate +exit
+
+- name: Upload world
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /home/steam/.config/unity3d/IronGate/Valheim/worlds/
+  with_fileglob:
+    - "{{ playbook_dir }}/{{world_name}}.*"
+  when: worldfile.stat.exists

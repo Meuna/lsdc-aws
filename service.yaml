@@ -1,0 +1,22 @@
+---
+- hosts: all
+  remote_user: ubuntu
+
+  vars:
+    service: valheim
+
+  vars_prompt:
+    - name: "server_name"
+      prompt: "What is the server name ?"
+      private: no
+    - name: "world_name"
+      prompt: "What is the world name ?"
+      private: no
+    - name: "server_password"
+      prompt: "What is the server password ?"
+      private: no
+
+  roles:
+    - supervised
+    - steam
+    - valheim
