@@ -1,10 +1,11 @@
+import sys
 import os
 import time
 import urllib2
 import json
 import boto3
 
-SERVICE = os.environ.get('SERVICE', None)
+SERVICE = sys.argv[1]
 
 desc_str = urllib2.urlopen('http://169.254.169.254/latest/dynamic/instance-identity/document').read()
 desc = json.loads(desc_str)
@@ -28,7 +29,6 @@ while True:
     for msg in all_msg.get('Messages', []):
         if msg['Body'] == 'stop':
             sqs.purge_queue(QueueUrl=SQS_URL)
-            if SERVICE:
-                os.system('supervisorctl stop ' + SERVICE)
+            os.system('supervisorctl stop ' + SERVICE)
             os.system('shutdown -h now')
     time.sleep(10)

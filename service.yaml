@@ -4,6 +4,7 @@
 
   vars:
     service: valheim
+    service_port: 2456
 
   vars_prompt:
     - name: "server_name"

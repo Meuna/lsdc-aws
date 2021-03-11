@@ -1,7 +1,7 @@
 ---
 - name: Update repositories cache and install packages
   ansible.builtin.apt:
-    name: [supervisor, python-boto3]
+    name: [supervisor, python-boto3, python-scapy]
     update_cache: yes
 
 - name: Start service
@@ -9,19 +9,42 @@
     name: supervisor
     state: started
 
+- name: Ensure /usr/local/bin/ folder
+  ansible.builtin.file:
+    path: /usr/local/bin/
+    state: directory
+    mode: '0755'
+
 - name: Deploy await_stop.py
   ansible.builtin.copy:
     src: await_stop.py
     dest: /usr/local/bin/await_stop.py
     mode: 0500
 
-- name: Setup conf
+- name: Setup await_stop conf
   notify: supervisord reload
   ansible.builtin.copy:
     dest: /etc/supervisor/conf.d/await_stop.conf
     content: |
       [program:await_stop]
-      command=python /usr/local/bin/await_stop.py
-      environment=SERVICE="{{ service }}"
+      command=python /usr/local/bin/await_stop.py {{ service }}
       user=root
       autorestart=true
+
+- name: Deploy halt_empty.py
+  ansible.builtin.copy:
+    src: halt_empty.py
+    dest: /usr/local/bin/halt_empty.py
+    mode: 0500
+  when: service_port is defined
+
+- name: Setup halt_empty conf
+  notify: supervisord reload
+  ansible.builtin.copy:
+    dest: /etc/supervisor/conf.d/halt_empty.conf
+    content: |
+      [program:halt_empty]
+      command=python /usr/local/bin/halt_empty.py {{ service }} {{ service_port }} {{ empty_timeout }}
+      user=root
+      autorestart=true
+  when: service_port is defined
