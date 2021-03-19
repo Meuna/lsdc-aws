@@ -16,7 +16,13 @@ variable "key_name" {
 variable "region" {
   type        = string
   default     = "eu-west-3"
-  description = "The name of the SSH key pair to use"
+  description = "The region to host the service"
+}
+
+variable "instance_type" {
+  type        = string
+  default     = "t3.medium"
+  description = "The instance type to host the service"
 }
 
 data "http" "ifconfig" {
@@ -27,7 +33,7 @@ data "http" "ifconfig" {
 }
 
 locals {
-  service = "valheim"
+  service = "lsdc"
   my_ip   = jsondecode(data.http.ifconfig.body).ip
 }
 
@@ -132,7 +138,7 @@ resource "aws_iam_instance_profile" "ec2" {
 
 resource "aws_instance" "server" {
   ami                  = data.aws_ami.ubuntu.id
-  instance_type        = "t3.large"
+  instance_type        = var.instance_type
   key_name             = var.key_name
   security_groups      = [aws_security_group.ssh_and_server.name]
   iam_instance_profile = aws_iam_instance_profile.ec2.name
@@ -175,7 +181,7 @@ resource "aws_iam_policy" "lambda_policy" {
   policy = data.aws_iam_policy_document.lambda-policy.json
 }
 
-resource "aws_iam_role" "lambda_start_stop" {
+resource "aws_iam_role" "lambda_startstop" {
   name                = "lambda-${local.service}"
   path                = "/${local.service}/"
   assume_role_policy  = data.aws_iam_policy_document.lambda-assume.json
@@ -188,11 +194,11 @@ data "archive_file" "lambda-code" {
   output_path = "${path.module}/.terraform/archive_files/lambda.zip"
 }
 
-resource "aws_lambda_function" "lambda_start_stop" {
+resource "aws_lambda_function" "lambda_startstop" {
   function_name    = "lambda-startstop-${local.service}"
   filename         = data.archive_file.lambda-code.output_path
   source_code_hash = base64sha256(data.archive_file.lambda-code.output_path)
-  role             = aws_iam_role.lambda_start_stop.arn
+  role             = aws_iam_role.lambda_startstop.arn
   handler          = "lambda.lambda_handler"
 
   runtime = "python3.8"
@@ -205,6 +211,50 @@ resource "aws_lambda_function" "lambda_start_stop" {
   }
 }
 
+resource "aws_apigatewayv2_api" "startstop" {
+  name          = "startstop-${local.service}"
+  protocol_type = "HTTP"
+}
+
+resource "aws_apigatewayv2_route" "start" {
+  api_id    = aws_apigatewayv2_api.startstop.id
+  route_key = "GET /start"
+  target    = "integrations/${aws_apigatewayv2_integration.startstop.id}"
+}
+
+resource "aws_apigatewayv2_route" "stop" {
+  api_id    = aws_apigatewayv2_api.startstop.id
+  route_key = "GET /stop"
+  target    = "integrations/${aws_apigatewayv2_integration.startstop.id}"
+}
+
+resource "aws_apigatewayv2_route" "status" {
+  api_id    = aws_apigatewayv2_api.startstop.id
+  route_key = "GET /status"
+  target    = "integrations/${aws_apigatewayv2_integration.startstop.id}"
+}
+
+resource "aws_apigatewayv2_integration" "startstop" {
+  api_id           = aws_apigatewayv2_api.startstop.id
+  integration_type = "AWS_PROXY"
+
+  connection_type        = "INTERNET"
+  integration_method     = "POST"
+  integration_uri        = aws_lambda_function.lambda_startstop.invoke_arn
+  payload_format_version = "2.0"
+}
+
+resource "aws_apigatewayv2_stage" "startstop" {
+  api_id      = aws_apigatewayv2_api.startstop.id
+  name        = "$default"
+  auto_deploy = true
+  depends_on = [aws_apigatewayv2_integration.startstop]
+}
+
 output "ec2_ip" {
   value = aws_instance.server.public_ip
+}
+
+output "api_url" {
+  value = aws_apigatewayv2_stage.startstop.invoke_url
 }

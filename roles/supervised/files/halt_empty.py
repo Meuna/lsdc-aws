@@ -12,12 +12,11 @@ pkt_filter = "udp and port {}".format(PORT)
 last_received = time.time()
 
 while True:
-    pkts = sniff(count=1, filter=pkt_filter, timeout=1)
+    pkts = sniff(count=1, filter=pkt_filter, timeout=10)
     now = time.time()
     if len(pkts) > 0:
         last_received = now
+        time.sleep(10)
     elif (now - last_received) > TIMEOUT:
         os.system('supervisorctl stop ' + SERVICE)
         os.system('shutdown -h now')
-            
-    time.sleep(10)

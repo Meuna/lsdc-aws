@@ -31,7 +31,7 @@ def lambda_handler(event, context):
             state = instance['State']['Name']
             try:
                 ip = instance['NetworkInterfaces'][0]['Association']['PublicIp']
-                reply = '{} - {}:{}'.format(state, ip, '2456')
+                reply = '{} - {}'.format(state, ip)
             except:
                 reply = '{} - no IP yet'.format(state)
         else:

@@ -7,6 +7,7 @@
 
 - name: Install game
   ansible.builtin.command: /usr/games/steamcmd +login anonymous +force_install_dir /home/steam/valheim +app_update {{ app_id }} validate +exit
+  creates: /home/steam/valheim/valheim_server.x86_64
 
 - name: Upload world
   ansible.builtin.copy:
