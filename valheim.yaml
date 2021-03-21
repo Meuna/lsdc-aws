@@ -4,17 +4,17 @@
 
   vars:
     service: valheim
-    service_port: 2456
+    sniff_port: 2456
 
   vars_prompt:
-    - name: "server_name"
+    - name: "valheim_server_name"
       prompt: "What is the server name ?"
       private: no
-    - name: "world_name"
+    - name: "valheim_world_name"
       prompt: "What is the world name ?"
       private: no
-    - name: "server_password"
-      prompt: "What is the server password ?"
+    - name: "valheim_server_password"
+      prompt: "What is the server password ? (at least 5 characters are required !)"
       private: no
 
   roles:

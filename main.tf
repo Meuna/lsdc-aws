@@ -9,7 +9,7 @@ terraform {
 
 variable "key_name" {
   type        = string
-  default     = "valheim"
+  default     = "lsdc"
   description = "The name of the SSH key pair to use"
 }
 
@@ -78,10 +78,18 @@ resource "aws_security_group" "ssh_and_server" {
   }
 
   ingress {
-    description = "${local.service} port"
+    description = "Valheim ports"
     from_port   = 2456
     to_port     = 2458
     protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Minecraft ports"
+    from_port   = 25565
+    to_port     = 25565
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 

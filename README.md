@@ -10,10 +10,10 @@ It features:
 *   A publicly accessible instance in the default VPC.
 *   A lambda to start/stop/status the instance.
 *   An API Gateway to invoque the lambda from a URL.
-*   A UDP sniffing daemon to stop the instance when no-one is connected on a
+*   A network sniffing daemon to stop the instance when no-one is connected on a
     certain port, after a certain timeout.
 *   A steamcmd installation role.
-*   A Valheim dedicated server role.
+*   Minecraft & Valheim dedicated server role.
 
 What it does not feature: an API Gateway to you function
 
@@ -43,8 +43,10 @@ provisioned EC2.
     api_url = "https://xxxxxxx.execute-api.eu-west-3.amazonaws.com/"
     ec2_ip = "xx.xx.xx.xx"
 
-Finally, provision the stack using Ansible and the IP of the provisioned EC2:
+Finally, provision the desired stack using Ansible and the IP of the provisioned
+EC2. Note that the stacks are not designed to share an instance:
 
+    ansible-playbook minecraft.yaml -i xx.xx.xx.xx,
     ansible-playbook valheim.yaml -i xx.xx.xx.xx,
 
 Play with your friends !

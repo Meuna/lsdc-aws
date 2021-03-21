@@ -7,7 +7,7 @@ SERVICE = sys.argv[1]
 PORT = sys.argv[2]
 TIMEOUT = int(sys.argv[3])
 
-pkt_filter = "udp and port {}".format(PORT)
+pkt_filter = "port {}".format(PORT)
 
 last_received = time.time()
 

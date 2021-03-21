@@ -2,3 +2,9 @@
 - name: supervisord reload
   become: true
   shell: supervisorctl reload
+
+- name: supervisord restart service
+  become: true
+  community.general.supervisorctl:
+    name: "{{ service }}"
+    state: restarted

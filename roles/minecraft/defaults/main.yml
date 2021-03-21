@@ -1,0 +1,9 @@
+minecraft_jar_url: https://launcher.mojang.com/v1/objects/1b557e7b033b583cd9f66746b7a9ab1ec1673ced/server.jar
+minecraft_port: 25565
+minecraft_gamemode:
+minecraft_player_idle_timeout: 10
+minecraft_difficulty: easy
+minecraft_pvp: false
+minecraft_hardcore: false
+minecraft_view_distance: 10
+minecraft_level_seed:

@@ -9,14 +9,12 @@
   args:
     creates: /var/lib/dpkg/arch
   when: ansible_architecture != 'i386'
-  register: archrc
 
 - name: Add i386 Architecture
   ansible.builtin.command: dpkg --add-architecture i386
   args:
     creates: /var/lib/dpkg/arch
   when: ansible_architecture != 'i386'
-  register: archrc
 
 - name: Accept EULA agreement (1)
   ansible.builtin.debconf:

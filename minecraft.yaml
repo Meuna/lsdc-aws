@@ -1,0 +1,16 @@
+---
+- hosts: all
+  remote_user: ubuntu
+
+  vars:
+    service: minecraft
+    sniff_port: 25565
+
+  vars_prompt:
+    - name: "minecraft_level_name"
+      prompt: "What is the level name ?"
+      private: no
+      default: world
+  roles:
+    - supervised
+    - minecraft

@@ -1,0 +1,23 @@
+---
+- name: Add minecraft user
+  ansible.builtin.user:
+    name: minecraft
+    state: present
+
+- name: Make sure java 8 is present
+  ansible.builtin.apt:
+    name: openjdk-8-jdk-headless
+    update_cache: yes
+
+- name: Setup supervisor conf
+  ansible.builtin.copy:
+    dest: /etc/supervisor/conf.d/minecraft.conf
+    content: |
+      [program:{{ service }}]
+      directory=/home/minecraft/server
+      command=java -Xmx1024M -Xms1024M -jar server.jar nogui
+      user=minecraft
+      autorestart=true
+      redirect_stderr=true
+      stopsignal=TERM
+  notify: supervisord reload

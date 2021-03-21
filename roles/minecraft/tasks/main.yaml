@@ -1,0 +1,11 @@
+---
+- name: Check if world.zip exists
+  local_action: ansible.builtin.stat path={{ playbook_dir }}/{{ minecraft_level_name }}.zip
+  register: worldfile
+
+- import_tasks: "{{ role_path }}/tasks/root_tasks.yml"
+  become: true
+
+- import_tasks: "{{ role_path }}/tasks/minecraft_tasks.yml"
+  become: true
+  become_user: minecraft

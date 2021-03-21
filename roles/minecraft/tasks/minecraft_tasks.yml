@@ -1,0 +1,37 @@
+---
+- name: Setup server folder
+  ansible.builtin.file:
+    path: /home/minecraft/server
+    state: directory
+    mode: '0755'
+
+- name: Download server.jar
+  ansible.builtin.get_url:
+    url: "{{ minecraft_jar_url }}"
+    dest: /home/minecraft/server/server.jar
+  notify: supervisord restart service
+
+- name: Setup server.properties
+  ansible.builtin.template:
+    src: server.properties.j2
+    dest: /home/minecraft/server/server.properties
+  notify: supervisord restart service
+
+- name: Agree to EULA
+  ansible.builtin.copy:
+    dest: /home/minecraft/server/eula.txt
+    content: eula=true
+
+- name: Setup world folder
+  ansible.builtin.file:
+    path: /home/minecraft/server/{{ minecraft_level_name }}
+    state: directory
+    mode: '0755'
+  when: worldfile.stat.exists
+
+- name: Upload world
+  ansible.builtin.unarchive:
+    src: "{{ worldfile.stat.path }}"
+    dest: /home/minecraft/server/{{ minecraft_level_name }}
+  when: worldfile.stat.exists
+  notify: supervisord restart service

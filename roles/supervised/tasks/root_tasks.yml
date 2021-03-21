@@ -36,7 +36,7 @@
     src: halt_empty.py
     dest: /usr/local/bin/halt_empty.py
     mode: 0500
-  when: service_port is defined
+  when: sniff_port is defined
 
 - name: Setup halt_empty conf
   notify: supervisord reload
@@ -44,7 +44,7 @@
     dest: /etc/supervisor/conf.d/halt_empty.conf
     content: |
       [program:halt_empty]
-      command=python /usr/local/bin/halt_empty.py {{ service }} {{ service_port }} {{ empty_timeout }}
+      command=python /usr/local/bin/halt_empty.py {{ service }} {{ sniff_port }} {{ empty_timeout }}
       user=root
       autorestart=true
-  when: service_port is defined
+  when: sniff_port is defined
