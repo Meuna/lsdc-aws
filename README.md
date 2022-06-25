@@ -15,8 +15,6 @@ It features:
 *   A steamcmd installation role.
 *   Minecraft & Valheim dedicated server role.
 
-What it does not feature: an API Gateway to you function
-
 Usage
 -----
 
